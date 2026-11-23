@@ -1,0 +1,33 @@
+{
+  "mindFile": "./AR_Targets.mind",
+  "targets": [
+    {
+      "targetIndex": 0,
+      "imageSrc": "./modern/1.webp"
+    },
+    {
+      "targetIndex": 1,
+      "imageSrc": "./modern/2.webp"
+    },
+    {
+      "targetIndex": 2,
+      "imageSrc": "./modern/3.webp"
+    },
+    {
+      "targetIndex": 3,
+      "imageSrc": "./modern/4.webp"
+    },
+        {
+      "targetIndex": 4,
+      "imageSrc": "./modern/5.webp"
+    },
+    {
+      "targetIndex": 5,
+      "imageSrc": "./modern/6.webp"
+    },
+        {
+      "targetIndex": 6,
+      "imageSrc": "./modern/7.webp"
+    }
+  ]
+}
