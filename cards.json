@@ -1,0 +1,9 @@
+{
+  "mindFile": "./AR_Targets.mind",
+  "targets": [
+    {
+      "targetIndex": 0,
+      "imageSrc": "./photos/1.webp"
+    }
+  ]
+}
