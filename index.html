@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>AR Postcards</title>
+    <script src="./lib/aframe.min.js"></script>
+    <script src="./lib/mindar-image-aframe.prod.js"></script>
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      #status {
+        position: fixed;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 16px;
+        background: rgba(0, 0, 0, 0.75);
+        color: #ffffff;
+        font-family: sans-serif;
+        font-size: 13px;
+        border-radius: 20px;
+        z-index: 10000;
+        pointer-events: none;
+        text-align: center;
+      }
+      #instructions-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        z-index: 10001;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+        font-family: sans-serif;
+      }
+      #instructions-overlay.visible {
+        display: flex;
+      }
+      #instructions-modal {
+        background: #ffffff;
+        color: #1a1a1a;
+        max-width: 400px;
+        width: 100%;
+        border-radius: 16px;
+        padding: 24px;
+        box-sizing: border-box;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+        text-align: center;
+      }
+      #instructions-modal h2 {
+        margin: 0 0 12px;
+        font-size: 20px;
+      }
+      #instructions-modal p {
+        margin: 0 0 20px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #444444;
+      }
+      #start-ar-btn {
+        background: #1a1a1a;
+        color: #ffffff;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 24px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: background 0.2s ease, transform 0.15s ease;
+      }
+      #start-ar-btn:hover {
+        background: #333333;
+      }
+      #start-ar-btn:active {
+        transform: scale(0.98);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status">Loading configuration...</div>
+
+    <div id="instructions-overlay" role="dialog" aria-modal="true" aria-labelledby="instructions-title">
+      <div id="instructions-modal">
+        <h2 id="instructions-title">How to Use</h2>
+        <p>
+          Point your camera at a historic postcard or photo to reveal how the place looks today. Hold steady and adjust your distance if the view needs to lock in.
+        </p>
+        <button id="start-ar-btn" type="button">Got it, start exploring</button>
+      </div>
+    </div>
+    
+    <script>
+      const statusText = document.querySelector('#status');
+      const instructionsOverlay = document.querySelector('#instructions-overlay');
+      const startArBtn = document.querySelector('#start-ar-btn');
+
+      let instructionsDismissed = false;
+
+      startArBtn.addEventListener('click', () => {
+        instructionsDismissed = true;
+        instructionsOverlay.classList.remove('visible');
+      });
+
+      // 1. JSON Fetch
+      fetch('./postcards.json')
+        .then(response => response.json())
+        .then(config => {
+          if (!config.mindFile || !config.targets || config.targets.length === 0) {
+            statusText.innerText = "Invalid configuration in postcards.json";
+            statusText.style.background = "rgba(220, 20, 20, 0.9)";
+            return;
+          }
+
+          statusText.innerText = "Loading AR engine...";
+
+          // 2. Dynamic a-Scene creation after config is fully loaded
+          const sceneEl = document.createElement('a-scene');
+          sceneEl.setAttribute('mindar-image', `imageTargetSrc: ${config.mindFile}; filterMinCF: 0.001; filterBeta: 0.01; missTolerance: 5; warmupTolerance: 5; uiLoading: no; uiScanning: no;`);
+          sceneEl.setAttribute('color-space', 'sRGB');
+          sceneEl.setAttribute('renderer', 'colorManagement: true, physicallyCorrectLights: false');
+          sceneEl.setAttribute('vr-mode-ui', 'enabled: false');
+          sceneEl.setAttribute('device-orientation-permission-ui', 'enabled: false');
+
+          // Camera functionality
+          const cameraEl = document.createElement('a-camera');
+          cameraEl.setAttribute('position', '0 0 0');
+          cameraEl.setAttribute('look-controls', 'enabled: false');
+          sceneEl.appendChild(cameraEl);
+
+          let activeTargetsCount = 0;
+
+          // 3. Target loop and build
+          config.targets.forEach(targetConfig => {
+            const targetEl = document.createElement('a-entity');
+            targetEl.setAttribute('mindar-image-target', `targetIndex: ${targetConfig.targetIndex}`);
+
+            const imageEl = document.createElement('a-image');
+            imageEl.setAttribute('src', targetConfig.imageSrc);
+            imageEl.setAttribute('position', '0 0 0.01');
+            imageEl.setAttribute('rotation', '0 0 0');
+
+            // Calculate target aspect ratio based on output image
+            const tempImg = new Image();
+            tempImg.crossOrigin = "anonymous";
+            tempImg.src = targetConfig.imageSrc;
+            tempImg.onload = function() {
+              const naturalWidth = tempImg.naturalWidth;
+              const naturalHeight = tempImg.naturalHeight;
+              if (naturalWidth && naturalHeight) {
+                const aspectRatio = naturalWidth / naturalHeight;
+                imageEl.setAttribute('width', 1);
+                imageEl.setAttribute('height', 1 / aspectRatio);
+              }
+            };
+
+            targetEl.appendChild(imageEl);
+            sceneEl.appendChild(targetEl);
+
+            // Event listeners
+            targetEl.addEventListener('targetFound', () => {
+              activeTargetsCount++;
+              statusText.innerText = "Photo recognised!";
+              statusText.style.background = "rgba(0, 180, 80, 0.9)";
+            });
+
+            targetEl.addEventListener('targetLost', () => {
+              activeTargetsCount = Math.max(0, activeTargetsCount - 1);
+              if (activeTargetsCount === 0) {
+                statusText.innerText = "Point at a historic photo.";
+                statusText.style.background = "rgba(0, 0, 0, 0.75)";
+              }
+            });
+          });
+
+          // Lifecycle listeners
+          sceneEl.addEventListener('arReady', () => {
+            statusText.innerText = "Camera ready. Point it at a historic photo.";
+            if (!instructionsDismissed) {
+              instructionsOverlay.classList.add('visible');
+            }
+          });
+
+          sceneEl.addEventListener('arError', () => {
+            instructionsOverlay.classList.remove('visible');
+            statusText.innerText = "Failed to initialise camera.";
+            statusText.style.background = "rgba(220, 20, 20, 0.9)";
+          });
+
+          // A-scene mount
+          document.body.appendChild(sceneEl);
+        })
+        .catch(error => {
+          console.error('Error loading postcards.json:', error);
+          statusText.innerText = "Failed to load configuration file.";
+          statusText.style.background = "rgba(220, 20, 20, 0.9)";
+        });
+    </script>
+  </body>
+</html>
