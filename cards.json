@@ -1,5 +1,5 @@
 {
-  "mindFile": "./AR_Targets.mind",
+  "mindFile": "./targets.mind",
   "targets": [
     {
       "targetIndex": 0,
