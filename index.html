@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <title>AR Cards</title>
+    <title>AR Spēle</title>
     <script src="./lib/aframe.min.js"></script>
     <script src="./lib/mindar-image-aframe.prod.js"></script>
     <style>
@@ -85,15 +85,15 @@
     </style>
   </head>
   <body>
-    <div id="status">Loading configuration...</div>
+    <div id="status">Lādē spēli.</div>
 
     <div id="instructions-overlay" role="dialog" aria-modal="true" aria-labelledby="instructions-title">
       <div id="instructions-modal">
-        <h2 id="instructions-title">How to Use</h2>
+        <h2 id="instructions-title">Kā spēlēt?</h2>
         <p>
-          Point your camera at a historic postcard or photo to reveal how the place looks today. Hold steady and adjust your distance if the view needs to lock in.
+          Virziet telefona kameru uz doto attēlu, lai redzētu jaunu attēlu. Spēles mērķis ir atrasts apslēptu burtu katrā telefonā redzamā attēlā. Noskenē nākamo QR kodu, lai saņemtu nākamā attēla izsniegšanas mīklu.
         </p>
-        <button id="start-ar-btn" type="button">Got it, start exploring</button>
+        <button id="start-ar-btn" type="button">Sapratu, sākt spēli!</button>
       </div>
     </div>
     
@@ -114,7 +114,7 @@
         .then(response => response.json())
         .then(config => {
           if (!config.mindFile || !config.targets || config.targets.length === 0) {
-            statusText.innerText = "Invalid configuration in cards.json";
+            statusText.innerText = "Nepareizi formatēts konfigurācijas fails.";
             statusText.style.background = "rgba(220, 20, 20, 0.9)";
             return;
           }
@@ -167,14 +167,14 @@
             // Event listeners
             targetEl.addEventListener('targetFound', () => {
               activeTargetsCount++;
-              statusText.innerText = "Photo recognised!";
+              statusText.innerText = "Attēls atpazīts!";
               statusText.style.background = "rgba(0, 180, 80, 0.9)";
             });
 
             targetEl.addEventListener('targetLost', () => {
               activeTargetsCount = Math.max(0, activeTargetsCount - 1);
               if (activeTargetsCount === 0) {
-                statusText.innerText = "Point at a historic photo.";
+                statusText.innerText = "Virziet kameru uz attēlu.";
                 statusText.style.background = "rgba(0, 0, 0, 0.75)";
               }
             });
@@ -182,7 +182,7 @@
 
           // Lifecycle listeners
           sceneEl.addEventListener('arReady', () => {
-            statusText.innerText = "Camera ready. Point it at a historic photo.";
+            statusText.innerText = "Kamera gatava. Virziet skatu uz attēlu.";
             if (!instructionsDismissed) {
               instructionsOverlay.classList.add('visible');
             }
@@ -190,7 +190,7 @@
 
           sceneEl.addEventListener('arError', () => {
             instructionsOverlay.classList.remove('visible');
-            statusText.innerText = "Failed to initialise camera.";
+            statusText.innerText = "Kamera netika iespējota.";
             statusText.style.background = "rgba(220, 20, 20, 0.9)";
           });
 
@@ -199,7 +199,7 @@
         })
         .catch(error => {
           console.error('Error loading cards.json:', error);
-          statusText.innerText = "Failed to load configuration file.";
+          statusText.innerText = "Neizdevās izlasīt konfigurācijas failu.";
           statusText.style.background = "rgba(220, 20, 20, 0.9)";
         });
     </script>
