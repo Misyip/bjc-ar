@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <title>AR Postcards</title>
+    <title>AR Cards</title>
     <script src="./lib/aframe.min.js"></script>
     <script src="./lib/mindar-image-aframe.prod.js"></script>
     <style>
@@ -110,11 +110,11 @@
       });
 
       // 1. JSON Fetch
-      fetch('./postcards.json')
+      fetch('./cards.json')
         .then(response => response.json())
         .then(config => {
           if (!config.mindFile || !config.targets || config.targets.length === 0) {
-            statusText.innerText = "Invalid configuration in postcards.json";
+            statusText.innerText = "Invalid configuration in cards.json";
             statusText.style.background = "rgba(220, 20, 20, 0.9)";
             return;
           }
@@ -198,7 +198,7 @@
           document.body.appendChild(sceneEl);
         })
         .catch(error => {
-          console.error('Error loading postcards.json:', error);
+          console.error('Error loading cards.json:', error);
           statusText.innerText = "Failed to load configuration file.";
           statusText.style.background = "rgba(220, 20, 20, 0.9)";
         });
