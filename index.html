@@ -85,7 +85,7 @@
     </style>
   </head>
   <body>
-    <div id="status">Lādē spēli.</div>
+    <div id="status">Lādē spēli...</div>
 
     <div id="instructions-overlay" role="dialog" aria-modal="true" aria-labelledby="instructions-title">
       <div id="instructions-modal">
@@ -119,7 +119,7 @@
             return;
           }
 
-          statusText.innerText = "Loading AR engine...";
+          statusText.innerText = "Lādē spēli...";
 
           // 2. Dynamic a-Scene creation after config is fully loaded
           const sceneEl = document.createElement('a-scene');
