@@ -7,3 +7,5 @@ The size (MBs, not image resolution) of the input images doesn't matter, neither
 https://www.faststonesoft.net/DN/FSResizerSetup45.exe
 
 From my experience, this is the fastest image converter that is also free (needs to be installed on your PC).
+
+## **Final sentence:**
