@@ -4,6 +4,14 @@
     {
       "targetIndex": 0,
       "imageSrc": "./photos/1.webp"
+    },
+    {
+      "targetIndex": 1,
+      "imageSrc": "./photos/2.webp"
+    },
+    {
+      "targetIndex": 2,
+      "imageSrc": "./photos/3.webp"
     }
   ]
 }
